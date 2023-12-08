@@ -3,7 +3,6 @@ import requests
 import os
 from PIL import Image
 from flask_cors import CORS
-import os
 
 app = Flask('compressor')
 CORS(app)
@@ -12,15 +11,14 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 
 temp_folder_name = 'temp'
 
-@app.route("/sanity_check")
+@app.route("/")
 def sanity_check():
-    return "Hello World!"
+    return "Hello, this is image compressor !"
 
 @app.route("/img/<int:size>/<path:url>")
 def img(size,url):
     try:
-        res = compress_img(max_size=size, url=url)
-        return res
+        return compress_img(max_size=size, url=url)
 
     except Exception as e:
         return str(e)
@@ -77,3 +75,4 @@ def return_image_result(file_path, destination_path, url):
         'new_weight': f'{get_size_of_image(destination_path)} KB' ,
         'new_format': res.format
     }
+
