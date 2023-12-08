@@ -20,11 +20,14 @@ def sanity_check():
 def img(size,url):
     try:
         res = compress_img(max_size=size, url=url)
-        send_file(img_destination_path, as_attachment=True)
         return res
 
     except Exception as e:
         return str(e)
+    
+@app.route("/res_img")
+def img_res(): 
+    return send_file(img_destination_path, as_attachment=True)
 
 def compress_img(max_size, url):
 
@@ -58,7 +61,7 @@ def return_image_result(file_path, destination_path):
     res = Image.open(destination_path)
 
     return {
-        'new_url':'',
+        'new_url':f'{request.url_root}res_img',
         'og_size': current.size,
         'og_weight': f'{get_size_of_image(file_path)} KB' ,
         'og_format': current.format,
