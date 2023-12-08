@@ -12,6 +12,8 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 
 img_path = os.path.join('temp', 'temp.png')
 img_destination_path = os.path.join('temp', 'temp.webp')
+video_path = os.path.join('temp')
+
 @app.route("/sanity_check")
 def sanity_check():
     return "Hello World!"
@@ -25,18 +27,27 @@ def img(size,url):
     except Exception as e:
         return str(e)
     
+@app.route("/video/<int:size>/<path:url>")
+def video(size,url):
+    try:
+        download_resource(url=url, file_path=video_path)
+        return "test"
+
+    except Exception as e:
+        return str(e)
+    
 @app.route("/res_img")
 def img_res(): 
     return send_file(img_destination_path, as_attachment=True)
 
 def compress_img(max_size, url):
 
-    download_image(url, file_path=img_path)
+    download_resource(url, file_path=img_path)
     compress_to_ideal(max_size=max_size,file_path=img_path, destination_path=img_destination_path)
 
     return return_image_result(file_path=img_path, destination_path=img_destination_path)
 
-def download_image(url, file_path): 
+def download_resource(url, file_path): 
     response = requests.get(url, stream=True)
     response.raw.decode_content = True
     with open(file_path, mode="wb") as file:
