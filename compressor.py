@@ -10,9 +10,7 @@ CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 
-img_path = os.path.join('temp', 'temp.png')
-img_destination_path = os.path.join('temp', 'temp.webp')
-video_path = os.path.join('temp')
+temp_folder_name = 'temp'
 
 @app.route("/sanity_check")
 def sanity_check():
@@ -29,14 +27,19 @@ def img(size,url):
     
 @app.route("/res_img/<path:url>")
 def img_res(url): 
+    img_destination_path = os.path.join(temp_folder_name, f'{get_filename(url)[:-4]}.webp')
     return send_file(img_destination_path, as_attachment=True)
 
+def get_filename(url): 
+    return url.split('/')[-1]
+
 def compress_img(max_size, url):
+    file_path = os.path.join(temp_folder_name, get_filename(url))
+    img_destination_path = os.path.join(temp_folder_name, f'{get_filename(url)[:-4]}.webp')
+    download_resource(url, file_path=file_path)
+    compress_to_ideal(max_size=max_size,file_path=file_path, destination_path=img_destination_path)
 
-    download_resource(url, file_path=img_path)
-    compress_to_ideal(max_size=max_size,file_path=img_path, destination_path=img_destination_path)
-
-    return return_image_result(file_path=img_path, destination_path=img_destination_path, url=url)
+    return return_image_result(file_path=file_path, destination_path=img_destination_path, url=url)
 
 def download_resource(url, file_path): 
     response = requests.get(url, stream=True)
