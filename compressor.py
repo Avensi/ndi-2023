@@ -27,17 +27,8 @@ def img(size,url):
     except Exception as e:
         return str(e)
     
-@app.route("/video/<int:size>/<path:url>")
-def video(size,url):
-    try:
-        download_resource(url=url, file_path=video_path)
-        return "test"
-
-    except Exception as e:
-        return str(e)
-    
-@app.route("/res_img")
-def img_res(): 
+@app.route("/res_img/<path:url>")
+def img_res(url): 
     return send_file(img_destination_path, as_attachment=True)
 
 def compress_img(max_size, url):
@@ -45,13 +36,16 @@ def compress_img(max_size, url):
     download_resource(url, file_path=img_path)
     compress_to_ideal(max_size=max_size,file_path=img_path, destination_path=img_destination_path)
 
-    return return_image_result(file_path=img_path, destination_path=img_destination_path)
+    return return_image_result(file_path=img_path, destination_path=img_destination_path, url=url)
 
 def download_resource(url, file_path): 
     response = requests.get(url, stream=True)
     response.raw.decode_content = True
     with open(file_path, mode="wb") as file:
         file.write(response.content)
+
+def remove_resource(file_path):
+    os.remove(file_path)
 
 def get_size_of_image(file_path):
     return os.stat(file_path).st_size / 1000
@@ -67,12 +61,12 @@ def compress_to_ideal(max_size, file_path, destination_path):
                 return False
     return True
 
-def return_image_result(file_path, destination_path):
+def return_image_result(file_path, destination_path, url):
     current = Image.open(file_path)
     res = Image.open(destination_path)
 
     return {
-        'new_url':f'{request.url_root}res_img',
+        'new_url':f'{request.url_root}res_img/{url}',
         'og_size': current.size,
         'og_weight': f'{get_size_of_image(file_path)} KB' ,
         'og_format': current.format,
